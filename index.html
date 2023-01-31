@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>sqlite datagrid demo</title>
+    <script
+      type="text/javascript"
+      src="./handsontable/handsontable.full.min.js"
+    ></script>
+    <link rel="stylesheet" href="./handsontable/handsontable.full.min.css" />
+    <script src="./sqlite_wasm/jswasm/sqlite3-worker1-promiser.js"></script>
+  </head>
+  <body>
+    <script>
+      const config = {
+        debug: false
+          ? undefined
+          : (...args) => console.debug("worker debug", ...args),
+        onunhandled: function (ev) {
+          error("Unhandled worker message:", ev.data);
+        },
+        onerror: function (ev) {
+          error("worker error:", ev);
+        },
+        onready: async function () {
+          let createScript = await fetch("create.sql").then((r) => r.text());
+          await promiser("open", {
+            filename: "northwind.db",
+          });
+          let total_sql_time = 0;
+
+          async function exec(sql) {
+            let s = performance.now();
+            let result = await promiser("exec", {
+              sql,
+              resultRows: [],
+              columnNames: [],
+            });
+            total_sql_time += performance.now() - s;
+            console.log(
+              `Query ${sql.substring(0, 100)} took`,
+              performance.now() - s
+            );
+            return result;
+          }
+
+          await exec(createScript);
+
+          let result;
+          result = await exec("select * from [Categories];");
+          create_grid(result.result.resultRows, result.result.columnNames);
+          result = await exec("select * from [CustomerCustomerDemo];");
+          create_grid(result.result.resultRows, result.result.columnNames);
+          result = await exec("select * from [CustomerDemographics];");
+          create_grid(result.result.resultRows, result.result.columnNames);
+          result = await exec("select * from [Customers];");
+          create_grid(result.result.resultRows, result.result.columnNames);
+          result = await exec("select * from [EmployeeTerritories];");
+          create_grid(result.result.resultRows, result.result.columnNames);
+          result = await exec("select * from [Employees];");
+          create_grid(result.result.resultRows, result.result.columnNames);
+          result = await exec("select * from [Order Details];");
+          create_grid(result.result.resultRows, result.result.columnNames);
+          result = await exec("select * from [Orders];");
+          create_grid(result.result.resultRows, result.result.columnNames);
+          result = await exec("select * from [Products];");
+          create_grid(result.result.resultRows, result.result.columnNames);
+          result = await exec("select * from [Regions];");
+          create_grid(result.result.resultRows, result.result.columnNames);
+          result = await exec("select * from [Shippers];");
+          create_grid(result.result.resultRows, result.result.columnNames);
+          result = await exec("select * from [Suppliers];");
+          create_grid(result.result.resultRows, result.result.columnNames);
+          result = await exec("select * from [Territories];");
+          create_grid(result.result.resultRows, result.result.columnNames);
+
+          console.log("Total sql time", total_sql_time);
+        },
+      };
+      const promiser = self.sqlite3Worker1Promiser(config);
+      console.log(promiser);
+
+      function create_grid(rows, columns) {
+        const container = document.createElement("div");
+        document.body.appendChild(container);
+        const data = [columns, ...rows];
+        console.log(data);
+        const hot = new Handsontable(container, {
+          data,
+          rowHeaders: true,
+          colHeaders: true,
+          licenseKey: "non-commercial-and-evaluation", // for non-commercial use only
+        });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "name": "sqlite-datagrid-demo",
+  "version": "1.0.0",
+  "description": "A simple demo integrating SQLite WASM with a datagrid",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "handsontable": "^12.3.0"
+  }
+}
