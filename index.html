@@ -81,10 +81,10 @@
           ? undefined
           : (...args) => console.debug("worker debug", ...args),
         onunhandled: function (ev) {
-          error("Unhandled worker message:", ev.data);
+          console.error("Unhandled worker message:", ev.data);
         },
         onerror: function (ev) {
-          error("worker error:", ev);
+          console.error("worker error:", ev);
         },
         onready: async function () {
           let createScript = await fetch("create.sql").then((r) => r.text());
