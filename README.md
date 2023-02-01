@@ -7,3 +7,7 @@ Uses:
 * https://github.com/jpwhite3/northwind-SQLite3/
 
 Vendoring in SQLite and the Northwind create script is done with `./vendor.sh`, then the datagrid with `npm init -y && npm install handsontable && mv node_modules/handsontable/dist handsontable`
+
+WIP:
+npm install sortablejs
+npm install frappe-datatable

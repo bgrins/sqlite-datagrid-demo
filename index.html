@@ -9,7 +9,11 @@
       src="./handsontable/handsontable.full.min.js"
     ></script>
     <link rel="stylesheet" href="./handsontable/handsontable.full.min.css" />
+    <link rel="stylesheet" href="./node_modules/frappe-datatable/dist/frappe-datatable.css" />
     <script src="./sqlite_wasm/jswasm/sqlite3-worker1-promiser.js"></script>
+    <script src="./node_modules/sortablejs/Sortable.js"></script>
+
+    <script src="./node_modules/frappe-datatable/dist/frappe-datatable.js"></script>
     <style>
       html.flexed {
         display: flex;
@@ -172,6 +176,11 @@
       function create_grid(rows, columns) {
         const container = document.createElement("div");
         document.querySelector("main").appendChild(container);
+        const dt = new DataTable(container, {
+          columns,
+          data: rows,
+        });
+        return;
         const data = [columns, ...rows];
         console.log(data);
         const hot = new Handsontable(container, {

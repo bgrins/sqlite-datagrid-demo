@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "handsontable": "^12.3.0"
+    "frappe-datatable": "^1.17.1",
+    "handsontable": "^12.3.0",
+    "sortablejs": "^1.15.0"
   }
 }
