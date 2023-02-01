@@ -10,9 +10,72 @@
     ></script>
     <link rel="stylesheet" href="./handsontable/handsontable.full.min.css" />
     <script src="./sqlite_wasm/jswasm/sqlite3-worker1-promiser.js"></script>
+    <style>
+      html.flexed {
+        display: flex;
+        flex-direction: column;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        width: 100vw;
+      }
+      html.flexed header {
+        display: flex;
+        flex-direction: row;
+      }
+      h1 {
+        font-size: 14px;
+        flex: 1;
+      }
+      #sheets {
+        display: inline-flex;
+        justify-content: end;
+        align-items: center;
+      }
+      #sheets button {
+        font-size: 8px;
+        padding: 0;
+      }
+      #sheets button.current {
+        background: lightblue;
+      }
+    </style>
   </head>
   <body>
+    <header>
+      <h1>sqlite datagrid demo</h1>
+      <div id="sheets"></div>
+    </header>
+    <main></main>
     <script>
+      // if get param is set then don't eagerly load the worker
+      const lazy = new URLSearchParams(window.location.search).has("lazy");
+      const sheets = [
+        { title: "Categories", sql: "select * from [Categories];" },
+        {
+          title: "CustomerCustomerDemo",
+          sql: "select * from [CustomerCustomerDemo];",
+        },
+        {
+          title: "CustomerDemographics",
+          sql: "select * from [CustomerDemographics];",
+        },
+        { title: "Customers", sql: "select * from [Customers];" },
+        {
+          title: "EmployeeTerritories",
+          sql: "select * from [EmployeeTerritories];",
+        },
+        { title: "Employees", sql: "select * from [Employees];" },
+        { title: "Order Details", sql: "select * from [Order Details];" },
+        { title: "Orders", sql: "select * from [Orders];" },
+        { title: "Products", sql: "select * from [Products];" },
+        { title: "Regions", sql: "select * from [Regions];" },
+        { title: "Shippers", sql: "select * from [Shippers];" },
+        { title: "Suppliers", sql: "select * from [Suppliers];" },
+        { title: "Territories", sql: "select * from [Territories];" },
+      ];
       const config = {
         debug: false
           ? undefined
@@ -30,7 +93,7 @@
           });
           let total_sql_time = 0;
 
-          async function exec(sql) {
+          async function exec(sql, container) {
             let s = performance.now();
             let result = await promiser("exec", {
               sql,
@@ -46,6 +109,31 @@
           }
 
           await exec(createScript);
+
+          if (lazy) {
+            document.documentElement.classList.add("flexed");
+            for (let sheet of sheets) {
+              let button = document.createElement("button");
+              button.innerText = sheet.title;
+              button.onclick = async () => {
+                document
+                  .querySelector("#sheets button.current")
+                  ?.classList.remove("current");
+                button.classList.add("current");
+                document.querySelector("main").innerHTML = "";
+                let result = await exec(sheet.sql);
+                create_grid(
+                  result.result.resultRows,
+                  result.result.columnNames,
+                );
+              };
+              document.querySelector("#sheets").append(button);
+            }
+
+            document.querySelector("#sheets button").click();
+
+            return;
+          }
 
           let result;
           result = await exec("select * from [Categories];");
@@ -78,12 +166,12 @@
           console.log("Total sql time", total_sql_time);
         },
       };
+
       const promiser = self.sqlite3Worker1Promiser(config);
-      console.log(promiser);
 
       function create_grid(rows, columns) {
         const container = document.createElement("div");
-        document.body.appendChild(container);
+        document.querySelector("main").appendChild(container);
         const data = [columns, ...rows];
         console.log(data);
         const hot = new Handsontable(container, {
